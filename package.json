@@ -1,0 +1,30 @@
+{
+  "name": "lightingway-drama",
+  "version": "0.0.1",
+  "description": "Lighting Way Drama is a message bot utilities framework. Provide scene, menu, state control. Let us to build bot service easily.",
+  "main": "index.js",
+  "repository": "https://github.com/mybigday/lightingway-drama",
+  "author": "Pepper Yen <pepper.yen@gmail.com>",
+  "license": "MIT",
+  "devEngines": {
+    "node": ">= 8.9.x"
+  },
+  "engines": {
+    "node": ">= 8.9.x"
+  },
+  "scripts": {
+    "dev": "export NODE_ENV=development && nodemon example/index.js",
+    "test": "jest --coverage"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "bottender": "^0.14.33",
+    "is-async-function": "^1.2.3",
+    "validator": "^9.4.1"
+  },
+  "devDependencies": {
+    "@fugood/test-utils": "^2.0.1",
+    "jest": "^22.4.3",
+    "nodemon": "^1.17.3"
+  }
+}

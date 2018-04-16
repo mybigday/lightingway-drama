@@ -1,0 +1,14 @@
+{
+  "extends": "./node_modules/@fugood/eslint-base/index.js",
+  "env": {
+    "es6": true,
+    "jest": true
+  },
+  "globals": {
+    "__DEV__": true
+  },
+  "rules": {
+    "global-require": 0,
+    "no-underscore-dangle": 0
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "line-basic-example",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "bottender": "0.14.33",
+    "greenlock-express": "^2.0.12"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.3"
+  }
+}
