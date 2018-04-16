@@ -69,8 +69,10 @@ describe('Drama scene control', async () => {
     expect(drama.sceneInstanceMap[key].mock_key).toBe('mock_scene_key');
   });
   it('should fine when scene type not exist', () => {
-    drama.addScene(notExistSceneKey, {});
-    expect(drama.sceneInstanceMap[notExistSceneKey]).toBeUndefined();
+    expect(() => {
+      drama.addScene(notExistSceneKey, {});
+      expect(drama.sceneInstanceMap[notExistSceneKey]).toBeUndefined();
+    }).toThrow(/^Scene type/);
   });
   it('should trigScene call trigger', async () => {
     await drama.trigScene(mockContext, key);

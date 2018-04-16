@@ -77,7 +77,7 @@ class Reply extends Basic {
         _.map(property.message_list, this.generateMessage)
       );
     } else {
-      parameter.push(this.generateMessage(property));
+      parameter.push([this.generateMessage(property)]);
     }
     return Promise.resolve(parameter);
   }

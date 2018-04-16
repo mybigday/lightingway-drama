@@ -41,10 +41,10 @@ describe('Basic reply feature', async () => {
       text,
     };
     const parameter = await reply.generateParameter({}, property);
-    expect(parameter).toEqual([{
+    expect(parameter).toEqual([[{
       type: 'text',
       text,
-    }]);
+    }]]);
   });
   it('should reply by message_list (multiple message)', async () => {
     const property = {
@@ -68,84 +68,84 @@ describe('Basic reply feature', async () => {
       type,
     };
     const parameter = await reply.generateParameter({}, property);
-    expect(parameter).toEqual([{
+    expect(parameter).toEqual([[{
       type: 'text',
       text: `Unknow message type: ${type}`,
-    }]);
+    }]]);
   });
   it('should support text message', async () => {
     const property = {
       type: 'text',
     };
     const parameter = await reply.generateParameter({}, property);
-    expect(parameter).toEqual([{
+    expect(parameter).toEqual([[{
       type: 'text',
       text: 'Text not set',
-    }]);
+    }]]);
   });
   it('should support image message', async () => {
     const property = {
       type: 'image',
     };
     const parameter = await reply.generateParameter({}, property);
-    expect(parameter).toEqual([{
+    expect(parameter).toEqual([[{
       type: 'image',
       originalContentUrl: 'https://goo.gl/dKUVh4',
       previewImageUrl: 'https://goo.gl/dKUVh4',
-    }]);
+    }]]);
   });
   it('should support video message', async () => {
     const property = {
       type: 'video',
     };
     const parameter = await reply.generateParameter({}, property);
-    expect(parameter).toEqual([{
+    expect(parameter).toEqual([[{
       type: 'video',
       originalContentUrl: 'https://goo.gl/W9zf6r',
       previewImageUrl: 'https://goo.gl/cjf6QY',
-    }]);
+    }]]);
   });
   it('should support audio message', async () => {
     const property = {
       type: 'audio',
     };
     const parameter = await reply.generateParameter({}, property);
-    expect(parameter).toEqual([{
+    expect(parameter).toEqual([[{
       type: 'audio',
       duration: 4000,
       originalContentUrl: 'https://goo.gl/VbuV79',
-    }]);
+    }]]);
   });
   it('should support location message', async () => {
     const property = {
       type: 'location',
     };
     const parameter = await reply.generateParameter({}, property);
-    expect(parameter).toEqual([{
+    expect(parameter).toEqual([[{
       type: 'location',
       title: 'MyBigDay Cafe',
       address: '台北市中山區中原街 40 號',
       latitude: 25.057524,
       longitude: 121.528775,
-    }]);
+    }]]);
   });
   it('should support location message', async () => {
     const property = {
       type: 'sticker',
     };
     const parameter = await reply.generateParameter({}, property);
-    expect(parameter).toEqual([{
+    expect(parameter).toEqual([[{
       type: 'sticker',
       packageId: '1',
       stickerId: '3',
-    }]);
+    }]]);
   });
   it('should support confirm message', async () => {
     const property = {
       type: 'confirm',
     };
     const parameter = await reply.generateParameter({}, property);
-    expect(parameter).toEqual([{
+    expect(parameter).toEqual([[{
       type: 'template',
       altText: 'Text not set',
       template: {
@@ -161,7 +161,7 @@ describe('Basic reply feature', async () => {
           text: 'No',
         }],
       },
-    }]);
+    }]]);
   });
   
 
