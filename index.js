@@ -40,6 +40,8 @@ class Drama {
         key,
       }, sceneConfig));
       this.sceneInstanceMap[key] = scene;
+    } else {
+      throw new Error(`Scene type ${sceneConfig.type} not exist.`);
     }
   }
   async trigScene(context, key, data, userListOrAll) {

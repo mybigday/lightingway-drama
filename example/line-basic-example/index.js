@@ -17,7 +17,7 @@ if (
   });
 
   drama.addScene('TEST_KEY', {
-    type: 'reply',
+    type: 'BOT_REPLY',
     trigger_type: 'text',
     predicate: 'hello',
     property: {
