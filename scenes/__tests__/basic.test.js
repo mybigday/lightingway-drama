@@ -53,8 +53,8 @@ describe('Basic scene trigger', async () => {
     expect(drama.handler.onText).toBeCalled();
   });
   it('should set default triggerHandler and multicastHandler', async () => {
-    expect(basic.triggerHandler).toBe('reply');
-    expect(basic.multicastHandler).toBe('multicast');
+    expect(await basic.getTriggerHandler()).toBe('reply');
+    expect(await basic.getMulticastHandler()).toBe('multicast');
   });
   it('should set state at state', async () => {
     await basic.trigger(context);
@@ -94,17 +94,17 @@ describe('Basic scene trigger', async () => {
     const result = await basic.beforeTrigger(context);
     expect(result).toBe(true);
   });
-  it('should call conclusion when beforeTrigger throw error', async () => {
-    class BeforeTriggerError extends Basic {
+  it('should call conclusion when beforeTrigger return is not true', async () => {
+    class StopBeforeTrigger extends Basic {
       async beforeTrigger() {
-        return Promise.reject('GO_TO_CONCLUSION');
+        return Promise.resolve('GO_TO_CONCLUSION');
       }
     }
-    const beforeTriggerError = new BeforeTriggerError(drama, config);
-    const beforeTriggerErrorContext = simulator.createTextContext(instanceKey);
-    await beforeTriggerError.trigger(beforeTriggerErrorContext);
-    expect(beforeTriggerErrorContext.state.trigger_key).toBe(instanceKey);
-    expect(beforeTriggerErrorContext.state.current_scene_key).toBeUndefined();
+    const stopBeforeTrigger = new StopBeforeTrigger(drama, config);
+    const stopBeforeTriggerContext = simulator.createTextContext(instanceKey);
+    await stopBeforeTrigger.trigger(stopBeforeTriggerContext);
+    expect(stopBeforeTriggerContext.state.trigger_key).toBe(instanceKey);
+    expect(stopBeforeTriggerContext.state.current_scene_key).toBeUndefined();
   });
   it('should clear state after resetSceneState', async () => {
     const cacheState = context.state;

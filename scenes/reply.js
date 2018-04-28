@@ -65,6 +65,23 @@ class Reply extends Basic {
           actions: buttonList,
         });
       }
+      case 'select': {
+        const thumbnailImageUrl = message.headerImageUrl;
+        const title = message.title;
+        const text = message.text || 'Text not set';
+        const buttonList = _(message.buttonList || [{}]).take(4).map((button) => ({
+          type: 'message',
+          label: button.title || '尚未設定標題',
+          text: button.message || 'UNDEFINED_MESSAGE',
+        }))
+        .value();
+        return Line.createButtonTemplate(text, _.omitBy({
+          thumbnailImageUrl,
+          text,
+          title,
+          actions: buttonList,
+        }, _.isUndefined));
+      }
       default: {
         return Line.createText(`Unknow message type: ${message.type}`);
       }
@@ -80,12 +97,6 @@ class Reply extends Basic {
       parameter.push([this.generateMessage(property)]);
     }
     return Promise.resolve(parameter);
-  }
-  get triggerHandler() {
-    return 'reply';
-  }
-  get multicastHandler() {
-    return 'multicast';
   }
 }
 Reply.type = TYPE;

@@ -20,10 +20,27 @@ if (
     type: 'BOT_REPLY',
     trigger_type: 'text',
     predicate: 'hello',
-    property: {
+    property: [{
       type: 'text',
       text: 'World',
-    },
+    }, {
+      type: 'image',
+    }, {
+      type: 'location',
+    }, {
+      type: 'confirm',
+    }, {
+      type: 'select',
+      title: 'Welcome',
+      text: 'Please select one action',
+      buttonList: [{
+        title: 'Say hello',
+        message: 'hello',
+      }, {
+        title: 'Say hi',
+        message: 'hi',
+      }],
+    }],
   });
 
   const server = createServer(bot);
@@ -34,8 +51,8 @@ if (
   ) {
     greenlock.create({
       server: 'https://acme-v01.api.letsencrypt.org/directory',
-      email: 'pepper.yen@gmail.com',
-      agreeTos: process.env.OWNER_EMAIL,
+      email: process.env.OWNER_EMAIL,
+      agreeTos: true,
       approveDomains: [process.env.SITE_URL],
       app: server,
     }).listen(80, 443);

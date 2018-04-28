@@ -7,7 +7,6 @@ const TYPE = 'BOT_BASIC';
 const URL_TEST = /^((\w){3,20})(:\/\/){1}/;
 
 class Basic {
-  // constructor(sceneControl, handler, key, config, callbackType) {
   constructor(drama, config, callbackType) {
     this.trigScene = drama.trigScene;
     this.sceneType = TYPE;
@@ -57,14 +56,13 @@ class Basic {
   async generateParameter(context, property) {
     return [];
   }
-  get triggerHandler() {
-    return 'reply';
+  async getTriggerHandler(context) {
+    return Promise.resolve('reply');
   }
-  get multicastHandler() {
-    return 'multicast';
+  async getMulticastHandler(context) {
+    return Promise.resolve('multicast');
   }
   async beforeTrigger(context, property) {
-    // Use reject to conclusion
     return Promise.resolve(true);
   }
   async trigger(context, data) {
@@ -85,8 +83,8 @@ class Basic {
     let property = _.defaults(data, this.config.property, {});
     property = await this.replaceDynamicProperty(context, property);
 
-    try {
-      await this.beforeTrigger(context, property);
+    const result = await this.beforeTrigger(context, property);
+    if (result === true) {
       context.setState({
         current_scene_type: this.sceneType,
         current_scene_key: this.key,
@@ -94,10 +92,10 @@ class Basic {
         last_scene_key: (/^MENU_/.test(triggerKey)) ? '' : (context.state.current_scene_key || ''),
       });
       const parameter = await this.generateParameter(context, property);
-      return await context[this.triggerHandler](...parameter);
-    } catch (result) {
-      return await this.conclusion(context, result);
+      const triggerHandler = await this.getTriggerHandler(context);
+      return await context[triggerHandler](...parameter);
     }
+    return await this.conclusion(context, result);
   }
   async multicast(context, data, userIdListOrAll) {
     let property = _.defaults(data, this.config.property, {});
@@ -109,9 +107,10 @@ class Basic {
     }
     const userIdListChunk = _.chunk(userIdList, 100);
     const parameter = await this.generateParameter(context, property);
-    const promiseList = _.each(userIdListChunk, async (userIdChunk) => (
-      await this.client[this.multicastHandler](userIdChunk, ...parameter)
-    ));
+    const promiseList = _.each(userIdListChunk, async (userIdChunk) => {
+      const multicastHandler = await this.getMulticastHandler(context);
+      return await this.client[multicastHandler](userIdChunk, ...parameter);
+    });
     return Promise.all(promiseList);
   }
   get sceneParams() {

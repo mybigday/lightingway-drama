@@ -32,8 +32,8 @@ describe('Basic reply feature', async () => {
   const reply = new Reply(drama, config);
   it('should constructor reply', async () => {
     expect(reply.sceneType).toBe('BOT_REPLY');
-    expect(reply.triggerHandler).toBe('reply');
-    expect(reply.multicastHandler).toBe('multicast');
+    expect(await reply.getTriggerHandler()).toBe('reply');
+    expect(await reply.getMulticastHandler()).toBe('multicast');
   });
   it('should reply by property (single message)', async () => {
     const property = {
@@ -163,7 +163,25 @@ describe('Basic reply feature', async () => {
       },
     }]]);
   });
-  
+  it('should support select message', async () => {
+    const property = {
+      type: 'select',
+    };
+    const parameter = await reply.generateParameter({}, property);
+    expect(parameter).toEqual([[{
+      type: 'template',
+      altText: 'Text not set',
+      template: {
+        type: 'buttons',
+        text: 'Text not set',
+        actions: [{
+          type: 'message',
+          label: '尚未設定標題',
+          text: 'UNDEFINED_MESSAGE',
+        }],
+      },
+    }]]);
+  });
 
   // it('should reply by meassage list');
 });
