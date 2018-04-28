@@ -20,27 +20,29 @@ if (
     type: 'BOT_REPLY',
     trigger_type: 'text',
     predicate: 'hello',
-    property: [{
-      type: 'text',
-      text: 'World',
-    }, {
-      type: 'image',
-    }, {
-      type: 'location',
-    }, {
-      type: 'confirm',
-    }, {
-      type: 'select',
-      title: 'Welcome',
-      text: 'Please select one action',
-      buttonList: [{
-        title: 'Say hello',
-        message: 'hello',
+    property: {
+      message_list: [{
+        type: 'text',
+        text: 'World',
       }, {
-        title: 'Say hi',
-        message: 'hi',
+        type: 'image',
+      }, {
+        type: 'location',
+      }, {
+        type: 'confirm',
+      }, {
+        type: 'select',
+        title: 'Welcome',
+        text: 'Please select one action',
+        buttonList: [{
+          title: 'Say hello',
+          message: 'hello',
+        }, {
+          title: 'Say hi',
+          message: 'hi',
+        }],
       }],
-    }],
+    },
   });
 
   const server = createServer(bot);
