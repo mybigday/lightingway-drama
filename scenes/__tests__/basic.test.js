@@ -58,30 +58,37 @@ describe('Basic scene trigger', async () => {
   });
   it('should set state at state', async () => {
     await basic.trigger(context);
-    expect(context.state.trigger_key).toBe(instanceKey);
-    expect(context.state.current_scene_type).toBe('BOT_BASIC');
-    expect(context.state.current_scene_key).toBe(key);
-    expect(context.state.last_scene_key).toBe('');
+    expect(context.state.trigger.key).toBe(instanceKey);
+    expect(context.state.current_scene.type).toBe('BOT_BASIC');
+    expect(context.state.current_scene.key).toBe(key);
+    expect(context.state.last_scene).toBeUndefined();
   });
   it('should replace dynamic property', async () => {
-    expect(context.state.current_scene_property.title).toBe(message);
-    expect(context.state.current_scene_property.description).toBe(description);
-    expect(context.state.current_scene_property.user_id).toBe('Hi __ID__');
+    expect(context.state.current_scene.property.title).toBe(message);
+    expect(context.state.current_scene.property.description).toBe(description);
+    expect(context.state.current_scene.property.user_id).toBe('Hi __ID__');
   });
   it('should filter out when not current scene', async () => {
     const result1 = await basic.filter('LW_NO_PASS', context);
     const result2 = await basic.filter('WILL_PASS', context);
     context.setState({
-      current_scene_type: 'not_exist_scene',
+      current_scene: {
+        type: 'not_exist_scene',
+      },
     });
     const result3 = await basic.filter('WILL_PASS', context);
     context.setState({
-      current_scene_type: 'BOT_BASIC',
-      current_scene_key: 'not_exist_key',
+      current_scene: {
+        type: 'BOT_BASIC',
+        key: 'not_exist_key',
+      },
     });
     const result4 = await basic.filter('WILL_PASS', context);
     context.setState({
-      current_scene_key: key,
+      current_scene: {
+        type: 'BOT_BASIC',
+        key,
+      },
     });
     const result5 = await basic.filter('WILL_PASS_AGAIN', context);
     expect(result1).toBe(false);
@@ -103,16 +110,13 @@ describe('Basic scene trigger', async () => {
     const stopBeforeTrigger = new StopBeforeTrigger(drama, config);
     const stopBeforeTriggerContext = simulator.createTextContext(instanceKey);
     await stopBeforeTrigger.trigger(stopBeforeTriggerContext);
-    expect(stopBeforeTriggerContext.state.trigger_key).toBe(instanceKey);
-    expect(stopBeforeTriggerContext.state.current_scene_key).toBeUndefined();
+    expect(stopBeforeTriggerContext.state.trigger.key).toBe(instanceKey);
+    expect(stopBeforeTriggerContext.state.current_scene).toBeUndefined();
   });
   it('should clear state after resetSceneState', async () => {
     const cacheState = context.state;
     basic.resetSceneState(context);
-    expect(context.state.current_scene_type).toBeUndefined();
-    expect(context.state.current_scene_key).toBeUndefined();
-    expect(context.state.current_scene_trigger_key).toBeUndefined();
-    expect(context.state.current_scene_property).toBeUndefined();
+    expect(context.state.current_scene).toBeUndefined();
     context.setState(cacheState);
   });
   it('should resetSceneState after conclusion', async () => {
@@ -120,7 +124,7 @@ describe('Basic scene trigger', async () => {
     const cacheState = context.state;
     await basic.conclusion(context, endMessage);
     expect(context.replyText).toBeCalledWith(endMessage);
-    expect(context.state.current_scene_type).toBeUndefined();
+    expect(context.state.current_scene).toBeUndefined();
     context.setState(cacheState);
   });
   it('should jump to next scene when postback data next_scene is set', async () => {
@@ -140,7 +144,7 @@ describe('Basic scene trigger', async () => {
                                     undefined,
                                     undefined);
   });
-  it('should use key as trigger_key when force trigger', async () => {
+  it('should use key as trigger.key when force trigger', async () => {
     const forceTriggerKey = 'CALLBACK_SCENE';
     const forceTriggerconfig = {
       key: forceTriggerKey,
@@ -150,7 +154,7 @@ describe('Basic scene trigger', async () => {
     const forceTrigger = new Basic(drama, forceTriggerconfig);
     const forceTriggerContext = simulator.createTextContext('force_trigger');
     await forceTrigger.trigger(forceTriggerContext);
-    expect(forceTriggerContext.state.trigger_key).toBe(forceTriggerKey);
+    expect(forceTriggerContext.state.trigger.key).toBe(forceTriggerKey);
   });
   
   // it('should support image trigger', async () => {

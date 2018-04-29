@@ -5,6 +5,28 @@ const { URL } = require('url');
 
 const TYPE = 'BOT_BASIC';
 const URL_TEST = /^((\w){3,20})(:\/\/){1}/;
+const FORCE_RESET = /^(LW|MENU|RESET)_/;
+
+/*
+  state: {
+    trigger: {
+      key,
+      force_reset,
+    },
+    current_scene: {
+      type,
+      key,
+      property,
+      runtime_data,
+    },
+    last_scene: {
+      type,
+      key,
+      property,
+      runtime_data,
+    },
+  }
+*/
 
 class Basic {
   constructor(drama, config, callbackType) {
@@ -56,10 +78,10 @@ class Basic {
   async generateParameter(context, property) {
     return [];
   }
-  async getTriggerHandler(context) {
+  async getTriggerHandler(context, property) {
     return Promise.resolve('reply');
   }
-  async getMulticastHandler(context) {
+  async getMulticastHandler(context, property) {
     return Promise.resolve('multicast');
   }
   async beforeTrigger(context, property) {
@@ -77,7 +99,10 @@ class Basic {
       }
     }
     context.setState({
-      trigger_key: triggerKey,
+      trigger: {
+        key: triggerKey,
+        force_reset: FORCE_RESET.test(triggerKey),
+      },
     });
 
     let property = _.defaults(data, this.config.property, {});
@@ -86,13 +111,15 @@ class Basic {
     const result = await this.beforeTrigger(context, property);
     if (result === true) {
       context.setState({
-        current_scene_type: this.sceneType,
-        current_scene_key: this.key,
-        current_scene_property: property,
-        last_scene_key: (/^MENU_/.test(triggerKey)) ? '' : (context.state.current_scene_key || ''),
+        current_scene: {
+          type: this.sceneType,
+          key: this.key,
+          property,
+        },
+        last_scene: context.state.current_scene,
       });
       const parameter = await this.generateParameter(context, property);
-      const triggerHandler = await this.getTriggerHandler(context);
+      const triggerHandler = await this.getTriggerHandler(context, property);
       return await context[triggerHandler](...parameter);
     }
     return await this.conclusion(context, result);
@@ -108,7 +135,7 @@ class Basic {
     const userIdListChunk = _.chunk(userIdList, 100);
     const parameter = await this.generateParameter(context, property);
     const promiseList = _.each(userIdListChunk, async (userIdChunk) => {
-      const multicastHandler = await this.getMulticastHandler(context);
+      const multicastHandler = await this.getMulticastHandler(context, property);
       return await this.client[multicastHandler](userIdChunk, ...parameter);
     });
     return Promise.all(promiseList);
@@ -149,9 +176,9 @@ class Basic {
   }
   async filter(value, context) {
     if (
-      /^LW_/.test(value) !== true &&
-      _.get(context, 'state.current_scene_type') === this.sceneType &&
-      _.get(context, 'state.current_scene_key') === this.key
+      FORCE_RESET.test(value) !== true &&
+      _.get(context, 'state.current_scene.type') === this.sceneType &&
+      _.get(context, 'state.current_scene.key') === this.key
     ) {
       return true;
     }
@@ -159,10 +186,8 @@ class Basic {
   }
   resetSceneState(context) {
     context.setState({
-      current_scene_type: undefined,
-      current_scene_key: undefined,
-      current_scene_trigger_key: undefined,
-      current_scene_property: undefined,
+      current_scene: undefined,
+      last_scene: context.state.current_scene,
     });
   }
   async callback(context) {
