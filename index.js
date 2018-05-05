@@ -16,6 +16,7 @@ class Drama {
       this.sceneInstanceMap = {};
       this.bot = property.bot;
       this.bot_type = this.bot.constructor.name;
+      this.media_folder = property.media_folder || '/tmp';
       this.generateHandler();
     } else {
       throw new Error('property.bot not defined: Must set one bottender bot.');

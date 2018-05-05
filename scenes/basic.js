@@ -63,6 +63,7 @@ class Basic {
     }
   }
   async replaceDynamicProperty(context, property) {
+    // TODO: Must recurcive property!!!
     return await Promise.props(
       _.mapValues(property, async (value) => {
         if (_.isFunction(value)) {
@@ -75,16 +76,16 @@ class Basic {
       })
     );
   }
-  async generateParameter(context, property) {
+  async generateParameter(/* context, property */) {
     return [];
   }
-  async getTriggerHandler(context, property) {
+  async getTriggerHandler(/* context, property */) {
     return Promise.resolve('reply');
   }
-  async getMulticastHandler(context, property) {
+  async getMulticastHandler(/* context, property */) {
     return Promise.resolve('multicast');
   }
-  async beforeTrigger(context, property) {
+  async beforeTrigger(/* context, property */) {
     return Promise.resolve(true);
   }
   async trigger(context, data) {
@@ -152,7 +153,7 @@ class Basic {
     return paramsData;
   }
   generateAction(parameter) {
-    // TODO: If type is message must check test is set
+    // TODO: If type is message must check text is set
     const result = {
       type: 'message',
       label: parameter.title || 'Title not set',
@@ -194,19 +195,34 @@ class Basic {
     if (context.event.isPostback) {
       const paramsData = this.depackageSceneParams(context);
       if (_.isString(paramsData.next_scene) && paramsData.next_scene !== '') {
-        return await this.conclusion(context, {
+        await this.conclusion(context, {
           nextSceneId: paramsData.next_scene,
         });
+        return true;
       }
     }
+    return false;
   }
   async conclusion(context, result) {
     this.resetSceneState(context);
     if (_.isString(result) && result !== '') {
-      return await context.replyText(result);
+      await context.replyText(result);
+      return true;
     } else if (result.nextSceneId) {
-      return await this.trigScene(context, result.nextSceneId, result.data, result.userListOrAll);
+      await this.trigScene(context, result.nextSceneId, result.data, result.userListOrAll);
+      return true;
     }
+    return false;
+  }
+  setRuntimeData(context, data) {
+    const currentRuntimeData = _.get(context, 'state.current_scene.runtime_data');
+    const currentScene = _.get(context, 'state.current_scene');
+    const newScene = _.defaults({
+      runtime_data: _.defaults(data, currentRuntimeData),
+    }, currentScene);
+    context.setState({
+      current_scene: newScene,
+    });
   }
 }
 Basic.type = TYPE;
