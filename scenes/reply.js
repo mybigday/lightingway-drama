@@ -29,7 +29,7 @@ class Reply extends Basic {
         break;
       }
       case 'video': {
-        const defaultVideoUrl = 'https://goo.gl/W9zf6r';
+        const defaultVideoUrl = 'http://www.html5videoplayer.net/videos/toystory.mp4';
         const defaultPreviewImageUrl = 'https://goo.gl/cjf6QY';
         const videoUrl = message.video_url || defaultVideoUrl;
         const previewUrl = message.preview_image_url || defaultPreviewImageUrl;

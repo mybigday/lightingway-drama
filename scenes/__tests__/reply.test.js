@@ -102,7 +102,7 @@ describe('Basic reply feature', async () => {
     const parameter = await reply.generateParameter({}, property);
     expect(parameter).toEqual([[{
       type: 'video',
-      originalContentUrl: 'https://goo.gl/W9zf6r',
+      originalContentUrl: 'http://www.html5videoplayer.net/videos/toystory.mp4',
       previewImageUrl: 'https://goo.gl/cjf6QY',
     }]]);
   });
