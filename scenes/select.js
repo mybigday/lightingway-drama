@@ -13,7 +13,10 @@ class Select extends Scene {
   constructor(drama, config) {
     super(drama, config, 'postback');
     this.sceneType = TYPE;
-    this.imageFolder = path.join(drama.media_folder, config.key);
+    this.imageFolder = path.join(drama.mediaFolder, config.key);
+    if (config.property.selectForm === 'image') {
+      this.generateImageFile(config.property);
+    }
   }
   async generateParameter(context, property) {
     let currentStage = '';
@@ -112,16 +115,92 @@ class Select extends Scene {
     // result = result.replace(`${SUBSELECT_KEY}.`, SUBSELECT_KEY);
     return result;
   }
-  async generateImageFile(currentStage, actionList, property) {
-    console.log('Start generateImagemap');
-    // TODO: Must check actionList.length > 0
-    const backgroundColor = property.backgroundColor || '#333333';
-    const fontColor = property.fontColor || '#CCCCCC';
-    // TODO: Must add property.arrangement
+  async generateImageMap(currentStage, props) {
+    const property = _.defaults(props, {
+      colorList: [{
+        backgroundColor: '#333333',
+        fontColor: '#CCCCCC',
+      }, {
+        backgroundColor: '#555555',
+        fontColor: '#CCCCCC',
+      }],
+      arrangement: 'list',
+    });
     if (!fs.existsSync(this.imageFolder)) {
       fs.mkdirSync(this.imageFolder);
     }
+    if (_.isArray(property.selection_list)) {
+      const quantity = property.selection_list.length;
+      if (quantity > 0 && quantity <= 24) {
+        let width = 1040;
+        let height = 1040;
+        let itemPerLine = 1;
+        if (property.arrangement === 'grid') {
+          if (quantity <= 4) {
+            itemPerLine = 2;
+          } else if (quantity <= 6) {
+            itemPerLine = 2;
+            height = (width / 2) * 3;
+          } else if (quantity <= 9) {
+            itemPerLine = 3;
+          } else if (quantity <= 12) {
+            itemPerLine = 3;
+            height = (width / 3) * 4;
+          } else if (quantity <= 16) {
+            itemPerLine = 4;
+          } else if (quantity <= 20) {
+            itemPerLine = 4;
+            height = (width / 4) * 5;
+          } else if (quantity <= 24) {
+            itemPerLine = 4;
+            height = (width / 2) * 3;
+          }
+        } else {
+          if (quantity > 10) {
+            height = (width / 2) * 3;
+          }
+        }
+        const imageFile = gm(1040, 1040, property.backgroundColor)
+                          .fill(property.fontColor)
+                          .stroke(property.fontColor, 3)
+                          .font(path.join(__dirname, '..', 'font.ttf'));
+        const itemHeight = height / _.ceil(quantity / itemPerLine);
+        let count = 0;
+        _.each(property.selection_list, (action, index) => {
+          const fontSize = Math.min(
+                            (height / actionList.length) * 0.7,
+                            width / (action.title.length + 4)
+                          );
+          const offset = (height + itemHeight) / 2;
+
+          imageFile
+          .fontSize(`${fontSize}px`)
+          .drawText(0, itemHeight * (index + 1) - offset, action.title, 'Center')
+          .drawLine(0, itemHeight * (index + 1), width, itemHeight * (index + 1))
+        });
+      } else {
+        throw new Error('Select must have at lease one selection and small then 24 items.');
+      }
+    } else {
+      throw new Error('Not support dynamic property when use imagemap select.');
+    }
+
+
+
+
+    // grid
+    // 2 x 2: 1-4
+    // 2 x 3: 5-6
+    // 3 x 3: 7-9
+    // 3 x 4: 10-12
+    // 4 x 4: 13-16
+    // 4 x 5: 17-20
+    // 4 x 6: 21-24
+    // list
+    // 1 x 1: 1-10
+    // 1 x 1.5: 11-24
     // 240px, 300px, 460px, 700px, 1040px
+
     const width = 1040;
     const height = 1040;
     const image1040FilePath = path.join(this.imageFolder, currentStage, '1040.png');
@@ -131,7 +210,7 @@ class Select extends Scene {
                         .stroke(fontColor, 3)
                         .font(path.join(__dirname, '..', 'font.ttf'));
       const itemHeight = height / actionList.length;
-      const maxCharLength = _.maxBy(actionList, (action) => (action.title.length)).title.length;
+      // const maxCharLength = _.maxBy(actionList, (action) => (action.title.length)).title.length;
       _.each(actionList, (action, index) => {
         const fontSize = Math.min(
                           (height / actionList.length) * 0.7,

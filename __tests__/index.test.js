@@ -40,7 +40,7 @@ describe('Drama constructor', async () => {
     });
     expect(drama.bot).toBe(bot);
     expect(drama.sceneInstanceMap).toEqual({});
-    expect(drama.bot_type).toBe('LineBot');
+    expect(drama.botType).toBe('LineBot');
     expect(drama.handler.constructor.name).toBe('LineHandler');
     expect(drama.client.constructor.name).toBe('LineClient');
   });

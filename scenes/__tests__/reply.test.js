@@ -8,6 +8,7 @@ const Reply = require('../reply');
 const Drama = require('../../index');
 jest.mock('../../index');
 Drama.mockImplementation(() => ({
+  botType: 'LineBot',
   handler: {
     onText: jest.fn(),
     onPostback: jest.fn(),
@@ -32,8 +33,8 @@ describe('Basic reply feature', async () => {
   const reply = new Reply(drama, config);
   it('should constructor reply', async () => {
     expect(reply.sceneType).toBe('BOT_REPLY');
-    expect(await reply.getTriggerHandler()).toBe('reply');
-    expect(await reply.getMulticastHandler()).toBe('multicast');
+    expect(await reply.getTriggerHandler(null, config.property)).toBe('reply');
+    expect(await reply.getMulticastHandler(null, config.property)).toBe('multicast');
   });
   it('should reply by property (single message)', async () => {
     const property = {

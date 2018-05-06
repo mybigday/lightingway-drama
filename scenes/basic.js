@@ -30,6 +30,7 @@ const FORCE_RESET = /^(LW|MENU|RESET)_/;
 
 class Basic {
   constructor(drama, config, callbackType) {
+    this.botType = drama.botType;
     this.trigScene = drama.trigScene;
     this.sceneType = TYPE;
     this.key = config.key;

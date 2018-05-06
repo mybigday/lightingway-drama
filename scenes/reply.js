@@ -12,7 +12,10 @@ class Reply extends Basic {
   generateMessage(message) {
     switch (message.type) {
       case 'text': {
-        return Line.createText(message.text || 'Text not set');
+        if (this.botType === 'LineBot') {
+          return Line.createText(message.text || 'Text not set');
+        }
+        return message.text;
       }
       case 'image': {
         const defaultUrl = 'https://goo.gl/dKUVh4';
@@ -89,14 +92,26 @@ class Reply extends Basic {
   }
   async generateParameter(context, property) {
     const parameter = [];
-    if (_.isArray(property.message_list)) {
+    if (this.botType === 'LineBot' && _.isArray(property.message_list)) {
       parameter.push(
-        _.map(property.message_list, this.generateMessage)
+        _.map(property.message_list, this.generateMessage.bind(this))
       );
     } else {
+      // TODO: if MessengerBot only support one message
       parameter.push([this.generateMessage(property)]);
     }
     return Promise.resolve(parameter);
+  }
+  async getTriggerHandler(context, property) {
+    if (this.botType === 'LineBot') {
+      return Promise.resolve('reply');
+    }
+    switch (property.type) {
+      case 'text': {
+        return Promise.resolve('sendText');
+      }
+    }
+    return Promise.resolve('reply');
   }
 }
 Reply.type = TYPE;
