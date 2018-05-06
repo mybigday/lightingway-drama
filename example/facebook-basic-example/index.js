@@ -5,7 +5,8 @@ const Drama = require('../../index');
 
 if (
   process.env.MESSENGER_ACCESS_TOKEN &&
-  process.env.MESSENGER_APP_SECRET
+  process.env.MESSENGER_APP_SECRET &&
+  process.env.MESSENGER_VERIFY_TOKEN
 ) {
   const bot = new MessengerBot({
     accessToken: process.env.MESSENGER_ACCESS_TOKEN,
@@ -26,7 +27,9 @@ if (
     },
   });
 
-  const server = createServer(bot);
+  const server = createServer(bot, {
+    verifyToken: process.env.MESSENGER_VERIFY_TOKEN,
+  });
 
   if (
     process.env.OWNER_EMAIL &&
@@ -47,5 +50,5 @@ if (
     });
   }
 } else {
-  console.log('Please export MESSENGER_ACCESS_TOKEN and MESSENGER_APP_SECRET first.');
+  console.log('Please export MESSENGER_ACCESS_TOKEN, MESSENGER_APP_SECRET and MESSENGER_VERIFY_TOKEN first.');
 }
