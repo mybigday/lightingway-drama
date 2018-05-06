@@ -12,30 +12,43 @@ class Reply extends Basic {
   generateMessage(message) {
     switch (message.type) {
       case 'text': {
-        if (this.botType === 'LineBot') {
-          return Line.createText(message.text || 'Text not set');
+        switch (this.botType) {
+          case 'LineBot': return Line.createText(message.text || 'Text not set');
+          case 'MessengerBot': return message.text;
         }
-        return message.text;
+        break;
       }
       case 'image': {
         const defaultUrl = 'https://goo.gl/dKUVh4';
         const imageUrl = message.image_url || defaultUrl;
         const previewUrl = message.preview_image_url || imageUrl;
-        return Line.createImage(imageUrl, previewUrl);
+        switch (this.botType) {
+          case 'LineBot': return Line.createImage(imageUrl, previewUrl);
+          case 'MessengerBot': return imageUrl;
+        }
+        break;
       }
       case 'video': {
         const defaultVideoUrl = 'https://goo.gl/W9zf6r';
         const defaultPreviewImageUrl = 'https://goo.gl/cjf6QY';
         const videoUrl = message.video_url || defaultVideoUrl;
         const previewUrl = message.preview_image_url || defaultPreviewImageUrl;
-        return Line.createVideo(videoUrl, previewUrl);
+        switch (this.botType) {
+          case 'LineBot': return Line.createVideo(videoUrl, previewUrl);
+          case 'MessengerBot': return videoUrl;
+        }
+        break;
       }
       case 'audio': {
         const defaultAudioUrl = 'https://goo.gl/VbuV79';
         const defaultDuration = 4000;
         const audioUrl = message.audio_url || defaultAudioUrl;
         const duration = message.duration || defaultDuration;
-        return Line.createAudio(audioUrl, duration);
+        switch (this.botType) {
+          case 'LineBot': return Line.createAudio(audioUrl, duration);
+          case 'MessengerBot': return audioUrl;
+        }
+        break;
       }
       case 'location': {
         return Line.createLocation(_.defaults(message, {
@@ -85,9 +98,11 @@ class Reply extends Basic {
           actions: buttonList,
         }, _.isUndefined));
       }
-      default: {
-        return Line.createText(`Unknow message type: ${message.type}`);
-      }
+    }
+    const errorMessage = `Unknow message type: ${message.type}`;
+    switch (this.botType) {
+      case 'LineBot': return Line.createText(errorMessage);
+      case 'MessengerBot': return errorMessage;
     }
   }
   async generateParameter(context, property) {
@@ -113,9 +128,10 @@ class Reply extends Basic {
       return Promise.resolve('reply');
     }
     switch (property.type) {
-      case 'text': {
-        return Promise.resolve('sendText');
-      }
+      case 'text': return Promise.resolve('sendText');
+      case 'image': return Promise.resolve('sendImage');
+      case 'video': return Promise.resolve('sendVideo');
+      case 'audio': return Promise.resolve('sendAudio');
     }
     return Promise.resolve('reply');
   }

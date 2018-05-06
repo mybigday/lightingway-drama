@@ -20,10 +20,37 @@ if (
   drama.addScene('TEST_KEY', {
     type: 'BOT_REPLY',
     trigger_type: 'text',
-    predicate: 'hello',
+    predicate: 'demo1',
     property: {
       type: 'text',
       text: 'World',
+    },
+  });
+
+  drama.addScene('TEST_KEY', {
+    type: 'BOT_REPLY',
+    trigger_type: 'text',
+    predicate: 'demo2',
+    property: {
+      type: 'image',
+    },
+  });
+
+  drama.addScene('TEST_KEY', {
+    type: 'BOT_REPLY',
+    trigger_type: 'text',
+    predicate: 'demo3',
+    property: {
+      type: 'video',
+    },
+  });
+
+  drama.addScene('TEST_KEY', {
+    type: 'BOT_REPLY',
+    trigger_type: 'text',
+    predicate: 'demo4',
+    property: {
+      type: 'audio',
     },
   });
 
