@@ -29,7 +29,7 @@ class Reply extends Basic {
         break;
       }
       case 'video': {
-        const defaultVideoUrl = 'http://bit.ly/2rlLur4';
+        const defaultVideoUrl = 'https://bit.ly/2rlLur4';
         const defaultPreviewImageUrl = 'https://goo.gl/cjf6QY';
         const videoUrl = message.video_url || defaultVideoUrl;
         const previewUrl = message.preview_image_url || defaultPreviewImageUrl;

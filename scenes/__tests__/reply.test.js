@@ -102,7 +102,7 @@ describe('Basic reply feature', async () => {
     const parameter = await reply.generateParameter({}, property);
     expect(parameter).toEqual([[{
       type: 'video',
-      originalContentUrl: 'http://bit.ly/2rlLur4',
+      originalContentUrl: 'https://bit.ly/2rlLur4',
       previewImageUrl: 'https://goo.gl/cjf6QY',
     }]]);
   });
