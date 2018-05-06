@@ -92,13 +92,19 @@ class Reply extends Basic {
   }
   async generateParameter(context, property) {
     const parameter = [];
-    if (this.botType === 'LineBot' && _.isArray(property.message_list)) {
-      parameter.push(
-        _.map(property.message_list, this.generateMessage.bind(this))
-      );
-    } else {
-      // TODO: if MessengerBot only support one message
-      parameter.push([this.generateMessage(property)]);
+    if (this.botType === 'LineBot') {
+      if (_.isArray(property.message_list)) {
+        parameter.push(
+          _.map(property.message_list, this.generateMessage.bind(this))
+        );
+      } else {
+        parameter.push([this.generateMessage(property)]);
+      }
+    } else if (this.botType === 'MessengerBot') {
+      if (_.isArray(property.message_list)) {
+        throw new Error('MessengerBot only support one message');
+      }
+      parameter.push(this.generateMessage(property));
     }
     return Promise.resolve(parameter);
   }
