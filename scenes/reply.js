@@ -4,7 +4,7 @@ const Basic = require('./basic');
 
 const TYPE = 'BOT_REPLY';
 
-class Reply extends Basic {
+class Content extends Basic {
   constructor(drama, config) {
     super(drama, config);
     this.sceneType = TYPE;
@@ -65,39 +65,42 @@ class Reply extends Basic {
         const stickerId = message.sticker_id || defaultStickerId;
         return Line.createSticker(packageId, stickerId);
       }
-      case 'confirm': {
-        const text = message.text || 'Text not set';
-        const buttonList = [{
-          type: 'message',
-          label: message.left_button_title || '是',
-          text: message.left_button_message || 'Yes',
-        }, {
-          type: 'message',
-          label: message.right_button_title || '否',
-          text: message.right_button_message || 'No',
-        }];
-        return Line.createConfirmTemplate(text, {
-          text,
-          actions: buttonList,
-        });
+      case 'qrcode': {
+        
       }
-      case 'select': {
-        const thumbnailImageUrl = message.headerImageUrl;
-        const title = message.title;
-        const text = message.text || 'Text not set';
-        const buttonList = _(message.buttonList || [{}]).take(4).map((button) => ({
-          type: 'message',
-          label: button.title || '尚未設定標題',
-          text: button.message || 'UNDEFINED_MESSAGE',
-        }))
-        .value();
-        return Line.createButtonTemplate(text, _.omitBy({
-          thumbnailImageUrl,
-          text,
-          title,
-          actions: buttonList,
-        }, _.isUndefined));
-      }
+      // case 'confirm': {
+      //   const text = message.text || 'Text not set';
+      //   const buttonList = [{
+      //     type: 'message',
+      //     label: message.left_button_title || '是',
+      //     text: message.left_button_message || 'Yes',
+      //   }, {
+      //     type: 'message',
+      //     label: message.right_button_title || '否',
+      //     text: message.right_button_message || 'No',
+      //   }];
+      //   return Line.createConfirmTemplate(text, {
+      //     text,
+      //     actions: buttonList,
+      //   });
+      // }
+      // case 'select': {
+      //   const thumbnailImageUrl = message.headerImageUrl;
+      //   const title = message.title;
+      //   const text = message.text || 'Text not set';
+      //   const buttonList = _(message.buttonList || [{}]).take(4).map((button) => ({
+      //     type: 'message',
+      //     label: button.title || '尚未設定標題',
+      //     text: button.message || 'UNDEFINED_MESSAGE',
+      //   }))
+      //   .value();
+      //   return Line.createButtonTemplate(text, _.omitBy({
+      //     thumbnailImageUrl,
+      //     text,
+      //     title,
+      //     actions: buttonList,
+      //   }, _.isUndefined));
+      // }
     }
     const errorMessage = `Unknow message type: ${message.type}`;
     switch (this.botType) {

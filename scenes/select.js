@@ -1,3 +1,13 @@
+/*
+  # Property
+  selectForm: ['basic', 'two-dimensional', 'carousel']
+  arrangement: ['list', 'grid']
+  headerImageUrl: 'URL'
+  title: 'String'
+  text: 'String'
+  selection_list: Can contain subproperty whith same property structor
+*/
+
 const _ = require('lodash');
 const Scene = require('./basic');
 const fs = require('fs');
@@ -14,9 +24,7 @@ class Select extends Scene {
     super(drama, config, 'postback');
     this.sceneType = TYPE;
     this.imageFolder = path.join(drama.mediaFolder, config.key);
-    if (config.property.selectForm === 'image') {
-      this.generateImageFile(config.property);
-    }
+    this.generateImageMap('', config.property);
   }
   async generateParameter(context, property) {
     let currentStage = '';
@@ -37,13 +45,70 @@ class Select extends Scene {
     // Must replace text
     parameter.push(currentProperty.text || 'Text not set');
     switch (currentProperty.selectForm) {
-      case 'image': {
-        if (!fs.existsSync(this.imageFolder)) {
-          fs.mkdirSync(this.imageFolder);
-        }
-        const imageFilePath = path.join(this.imageFolder, `${currentStage || 'MAIN'}.png`);
-        if (!fs.existsSync(imageFilePath)) {
-
+      case 'basic': {
+        switch (this.botType) {
+          case 'LineBot': {
+            if (currentProperty.selection_list.length <= 4) {
+              parameter.push(
+                _.omitBy({
+                  thumbnailImageUrl: currentProperty.headerImageUrl,
+                  title: currentProperty.title,
+                  text: currentProperty.text || 'Text not set',
+                  actions: _(currentProperty.selection_list).map((selection, index) => (
+                    (_.isArray(selection.selection_list) && selection.selection_list.length > 0) ?
+                    _.defaults({
+                      key: this.generateSelectionKey(currentStage, index),
+                    }, selection)
+                    :
+                    selection
+                  )).map(this.generateAction.bind(this))
+                  .take(4)
+                  .value(),
+                }, _.isUndefined)
+              );
+            } else if (currentProperty.selection_list.length <= 24) {
+              // Must check already gen image
+              // context.replyImagemap('this is an imagemap', {
+              //   baseUrl: 'https://example.com/bot/images/rm001',
+              //   baseSize: {
+              //     width: 1040,
+              //     height: 1040,
+              //   },
+              //   actions: [
+              //     {
+              //       type: 'uri',
+              //       linkUri: 'https://example.com/',
+              //       area: {
+              //         x: 0,
+              //         y: 0,
+              //         width: 520,
+              //         height: 1040,
+              //       },
+              //     },
+              //     {
+              //       type: 'message',
+              //       text: 'hello',
+              //       area: {
+              //         x: 520,
+              //         y: 0,
+              //         width: 520,
+              //         height: 1040,
+              //       },
+              //     },
+              //   ],
+              // });
+            }
+            break;
+          }
+          case 'MessengerBot': {
+            if (currentProperty.selection_list.length <= 4) {
+              // 一般型範本
+            } else if (currentProperty.selection_list.length <= 11) {
+              // 11 Quick reply
+            }
+            
+            break;
+          }
         }
         break;
       }
@@ -64,6 +129,7 @@ class Select extends Scene {
         break;
       }
       case 'two-dimensional':
+        // FB: 一般型範本 10x3
         parameter.push(
           _(currentProperty.selection_list).map((selection, index) => ({
             thumbnailImageUrl: selection.headerImageUrl,
@@ -85,25 +151,6 @@ class Select extends Scene {
           .value()
         );
         break;
-      default: {
-        parameter.push(
-          _.omitBy({
-            thumbnailImageUrl: currentProperty.headerImageUrl,
-            title: currentProperty.title,
-            text: currentProperty.text || 'Text not set',
-            actions: _(currentProperty.selection_list).map((selection, index) => (
-              (_.isArray(selection.selection_list) && selection.selection_list.length > 0) ?
-              _.defaults({
-                key: this.generateSelectionKey(currentStage, index),
-              }, selection)
-              :
-              selection
-            )).map(this.generateAction.bind(this))
-            .take(4)
-            .value(),
-          }, _.isUndefined)
-        );
-      }
     }
     return Promise.resolve(parameter);
   }
@@ -129,10 +176,11 @@ class Select extends Scene {
     if (!fs.existsSync(this.imageFolder)) {
       fs.mkdirSync(this.imageFolder);
     }
+
     if (_.isArray(property.selection_list)) {
       const quantity = property.selection_list.length;
       if (quantity > 0 && quantity <= 24) {
-        let width = 1040;
+        const width = 1040;
         let height = 1040;
         let itemPerLine = 1;
         if (property.arrangement === 'grid') {
@@ -160,24 +208,41 @@ class Select extends Scene {
             height = (width / 2) * 3;
           }
         }
-        const imageFile = gm(1040, 1040, property.backgroundColor)
-                          .fill(property.fontColor)
-                          .stroke(property.fontColor, 3)
+        const image = gm(width, height, property.colorList[0].backgroundColor)
+                          // .fill(property.fontColor)
+                          // .stroke(property.fontColor, 3)
                           .font(path.join(__dirname, '..', 'font.ttf'));
+        const itemWidth = width / itemPerLine;
         const itemHeight = height / _.ceil(quantity / itemPerLine);
         let count = 0;
-        _.each(property.selection_list, (action, index) => {
-          const fontSize = Math.min(
-                            (height / actionList.length) * 0.7,
-                            width / (action.title.length + 4)
-                          );
-          const offset = (height + itemHeight) / 2;
+        _.each(property.selection_list, (selection, index) => {
+          const x = index % itemPerLine;
+          const y = _.floor(index / itemPerLine);
+          const x0 = x * itemWidth;
+          const x1 = x0 + itemWidth;
+          const y0 = y * itemHeight;
+          const y1 = y0 + itemHeight;
+          const fontSize = Math.min(itemHeight * 0.7, itemWidth / (selection.title.length + 2));
+          const offsetX = (width + itemWidth) / 2;
+          const offsetY = (height + itemHeight) / 2;
 
-          imageFile
+          const color = _.nth(property.colorList, index % property.colorList.length);
+
+          image
+          .fill(color.backgroundColor)
+          .drawRectangle(x0, y0, x1, y1)
+          .fill(color.fontColor)
           .fontSize(`${fontSize}px`)
-          .drawText(0, itemHeight * (index + 1) - offset, action.title, 'Center')
-          .drawLine(0, itemHeight * (index + 1), width, itemHeight * (index + 1))
+          // .drawText(x0, y1, selection.title, 'Center');
+          .drawText(itemWidth * (x + 1) - offsetX, itemHeight * (y + 1) - offsetY, selection.title, 'Center');
+          // .drawText(0, itemHeight * (index + 1) - offset, action.title, 'Center')
+          count = (count + 1) % property.selection_list.length;
+
+          if (_.isArray(selection.selection_list)) {
+            this.generateImageMap(`${currentStage}[${index}]`, props);
+          }
         });
+        await this.saveImageFile(image, currentStage);
       } else {
         throw new Error('Select must have at lease one selection and small then 24 items.');
       }
@@ -200,61 +265,30 @@ class Select extends Scene {
     // 1 x 1: 1-10
     // 1 x 1.5: 11-24
     // 240px, 300px, 460px, 700px, 1040px
-
-    const width = 1040;
-    const height = 1040;
-    const image1040FilePath = path.join(this.imageFolder, currentStage, '1040.png');
-    // if (!fs.existsSync(image1040FilePath)) {
-      const imageFile = gm(1040, 1040, backgroundColor)
-                        .fill(fontColor)
-                        .stroke(fontColor, 3)
-                        .font(path.join(__dirname, '..', 'font.ttf'));
-      const itemHeight = height / actionList.length;
-      // const maxCharLength = _.maxBy(actionList, (action) => (action.title.length)).title.length;
-      _.each(actionList, (action, index) => {
-        const fontSize = Math.min(
-                          (height / actionList.length) * 0.7,
-                          width / (action.title.length + 4)
-                        );
-        const offset = (height + itemHeight) / 2;
-
-        imageFile
-        .fontSize(`${fontSize}px`)
-        .drawText(0, itemHeight * (index + 1) - offset, action.title, 'Center')
-        .drawLine(0, itemHeight * (index + 1), width, itemHeight * (index + 1))
-      });
-      await this.saveImageFile(imageFile, currentStage, 1040);
-      await this.resizeImage(image1040FilePath, 700);
-      await this.resizeImage(image1040FilePath, 460);
-      await this.resizeImage(image1040FilePath, 300);
-      await this.resizeImage(image1040FilePath, 240);
-    // }
   }
-  async saveImageFile(image, currentStage, width) {
+  async saveImageFile(image, currentStage) {
     return new Promise((resolve, reject) => {
-      if (width) {
-        image.resize(width);
-      }
-      const imageFilePath = path.join(this.imageFolder, currentStage, `${width}.png`);
-      console.log('imageFilePath: ', imageFilePath);
-      image.write(imageFilePath, (err) => {
+      const resizeImage = async (filePath, width) => (
+        new Promise((resolve2, reject2) => {
+          const imageFilePath = path.join(path.dirname(filePath), `${width}.png`);
+          gm(filePath).resize(width).write(imageFilePath, (err) => {
+            if (err) {
+              return reject2(err);
+            }
+            return resolve2();
+          });
+        })
+      );
+      const imageFilePath = path.join(this.imageFolder, currentStage, '1040.png');
+      image.write(imageFilePath, async (err) => {
         if (err) {
-          console.log('Err:', err);
           return reject(err);
         }
-        resolve();
-      });
-    });
-  }
-  async resizeImage(filePath, width) {
-    return new Promise((resolve, reject) => {
-      const imageFilePath = path.join(path.dirname(filePath), `${width}.png`);
-      gm(filePath).resize(width).write(imageFilePath, (err) => {
-        if (err) {
-          console.log('Err:', err);
-          return reject(err);
-        }
-        resolve();
+        await resizeImage(imageFilePath, 700);
+        await resizeImage(imageFilePath, 460);
+        await resizeImage(imageFilePath, 300);
+        await resizeImage(imageFilePath, 240);
+        return resolve();
       });
     });
   }

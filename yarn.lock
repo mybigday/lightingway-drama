@@ -2383,7 +2383,7 @@ chownr@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/chownr/-/chownr-1.0.1.tgz#e2a75042a9551908bebd25b8523d5f9769d79181"
 
-"chromedriver@github:jhen0409/node-chromedriver":
+chromedriver@jhen0409/node-chromedriver:
   version "2.35.0"
   resolved "https://codeload.github.com/jhen0409/node-chromedriver/tar.gz/ab2dc869242b8d5d1112dab1bf137f2f56c1aff7"
   dependencies:
@@ -4303,7 +4303,7 @@ global-dirs@^0.1.0:
   dependencies:
     ini "^1.3.4"
 
-global@~4.3.0:
+global@^4.3.2, global@~4.3.0:
   version "4.3.2"
   resolved "https://registry.yarnpkg.com/global/-/global-4.3.2.tgz#e76989268a6c74c38908b1305b10fc0e394e9d0f"
   dependencies:
@@ -6514,7 +6514,7 @@ lodash.values@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/lodash.values/-/lodash.values-4.3.0.tgz#a3a6c2b0ebecc5c2cba1c17e6e620fe81b53d347"
 
-lodash@4.x, lodash@^4.0.0, lodash@^4.17.5, lodash@^4.6.1, lodash@^4.8.0, lodash@~4.17.4:
+lodash@4.x, lodash@^4.0.0, lodash@^4.17.10, lodash@^4.17.5, lodash@^4.6.1, lodash@^4.8.0, lodash@~4.17.4:
   version "4.17.10"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
 

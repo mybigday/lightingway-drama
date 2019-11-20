@@ -18,6 +18,7 @@ const FORCE_RESET = /^(LW|MENU|RESET)_/;
       key,
       property,
       runtime_data,
+      reply_queue,
     },
     last_scene: {
       type,
@@ -42,12 +43,36 @@ class Basic {
   }
   bindTrigger(handler) {
     this.triggerType = this.config.trigger_type;
-    switch (this.config.trigger_type) {
-      case 'text': {
-        handler.onText(this.config.predicate, this.trigger.bind(this));
-        break;
-      }
-      default:
+    const basicEventHandler = {
+      text: handler.onText,
+      image: handler.onImage,
+      video: handler.onVideo,
+      audio: handler.onAudio,
+      location: handler.onLocation,
+      sticker: handler.onSticker,
+      postback: handler.onPostback,
+    };
+    const lineEventHandler = {
+      date: handler.onDate,
+      time: handler.onTime,
+      datetime: handler.onDatetime,
+      follow: handler.onFollow,
+      unfollow: handler.onUnfollow,
+      join: handler.onJoin,
+      leave: handler.onLeave,
+      beacon: handler.onBeacon,
+    };
+    const messengerEventHandler = {
+      file: handler.onFile,
+      quick_reply: handler.onQuickReply,
+    };
+    const eventHandler = _.defaults(
+      this.botType === 'LineBot' && lineEventHandler,
+      this.botType === 'MessengerBot' && messengerEventHandler,
+      basicEventHandler,
+    )[this.triggerType];
+    if (eventHandler) {
+      eventHandler(this.config.predicate, this.trigger.bind(this));
     }
   }
   bindCallback(handler) {
@@ -64,28 +89,38 @@ class Basic {
     }
   }
   async replaceDynamicProperty(context, property) {
-    // TODO: Must recurcive property!!!
     return await Promise.props(
       _.mapValues(property, async (value) => {
+        let result = value;
         if (_.isFunction(value)) {
           if (isAsyncFunction(value)) {
-            return await value(context);
+            result = await value(context);
+          } else {
+            result = value(context);
           }
-          return Promise.resolve(value(context));
         }
-        return Promise.resolve(value);
+        if (_.isObject(result)) {
+          const newResult = await this.replaceDynamicProperty(context, result);
+          if (_.isArray(result)) {
+            result = _.toArray(newResult);
+          }
+        }
+        return Promise.resolve(result);
       })
     );
   }
-  async generateParameter(/* context, property */) {
+  async generateReplyQueue(/* context, property */) {
     return [];
   }
-  async getTriggerHandler(/* context, property */) {
-    return Promise.resolve('reply');
-  }
-  async getMulticastHandler(/* context, property */) {
-    return Promise.resolve('multicast');
-  }
+  // async generateParameter(/* context, property */) {
+  //   return [];
+  // }
+  // async getTriggerHandler(/* context, property */) {
+  //   return Promise.resolve('reply');
+  // }
+  // async getMulticastHandler(/* context, property */) {
+  //   return Promise.resolve('multicast');
+  // }
   async beforeTrigger(/* context, property */) {
     return Promise.resolve(true);
   }
