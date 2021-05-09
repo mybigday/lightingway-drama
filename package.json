@@ -21,7 +21,7 @@
     "bottender": "^0.14.33",
     "gm": "^1.23.1",
     "is-async-function": "^1.2.3",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.21",
     "validator": "^9.4.1"
   },
   "devDependencies": {
