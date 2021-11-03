@@ -22,7 +22,7 @@
     "gm": "^1.23.1",
     "is-async-function": "^1.2.3",
     "lodash": "^4.17.10",
-    "validator": "^9.4.1"
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "@fugood/test-utils": "^2.0.1",
